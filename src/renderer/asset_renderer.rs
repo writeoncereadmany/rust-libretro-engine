@@ -50,8 +50,11 @@ impl AssetRenderer {
         self.renderer.draw_hud_text(&self.assets, self.assets.fonts.get(font).unwrap(), &text, x, y, alignment);
     }
     
-    pub fn render(&mut self, ctx: &mut RunContext) {
+    pub fn render_hud(&mut self) {
         self.renderer.render_hud();
+    }
+    
+    pub fn render(&mut self, ctx: &mut RunContext) {
         self.renderer.render(ctx);
     }
 
