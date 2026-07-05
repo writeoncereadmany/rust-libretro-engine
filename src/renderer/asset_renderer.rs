@@ -17,7 +17,7 @@ impl AssetRenderer {
         AssetRenderer { renderer, assets }
     }
 
-    pub fn draw_background(&mut self, tileset: &str, tile: TileId, x: i32, y: i32) {
+    pub fn draw_background_tile(&mut self, tileset: &str, tile: TileId, x: i32, y: i32) {
         if let Some(tilesheet) = self.assets.tilesheets.get(tileset) {
             self.renderer.draw_background(&self.assets, &tilesheet.tile(tile), x, y);
         }
@@ -31,7 +31,7 @@ impl AssetRenderer {
     }
     
     pub fn draw_hud_sprite(&mut self, sprite: &str, x: i32, y: i32) {
-        self.renderer.draw_hud(&self.assets, self.assets.sprite(sprite), x, y);
+        self.renderer.draw_hud_sprite(&self.assets, self.assets.sprite(sprite), x, y);
     }
 
     pub fn draw_sprite(&mut self, sprite: &str, x: i32, y: i32, flip_x: bool) {
@@ -49,13 +49,9 @@ impl AssetRenderer {
     pub fn draw_hud_text(&mut self, text: &str, font: &str, x: i32, y: i32, alignment: Alignment) {
         self.renderer.draw_hud_text(&self.assets, self.assets.fonts.get(font).unwrap(), &text, x, y, alignment);
     }
-    
-    pub fn render_hud(&mut self) {
-        self.renderer.render_hud();
-    }
-    
-    pub fn render(&mut self, ctx: &mut RunContext) {
-        self.renderer.render(ctx);
+
+    pub fn draw_hud(&mut self) {
+        self.renderer.draw_hud();
     }
 
     pub fn clear(&mut self) {
@@ -66,6 +62,10 @@ impl AssetRenderer {
         self.renderer.clear_sprites();
     }
 
+    pub fn present(&mut self, ctx: &mut RunContext) {
+        self.renderer.present(ctx);
+    }
+
     pub fn on_event(&mut self, event: &Event, _events: &mut Events) {
 
         event.apply(|UpdateBackgroundSprite { x, y, sprite }| {
@@ -73,7 +73,7 @@ impl AssetRenderer {
         });
 
         event.apply(|UpdateBackgroundTile { x, y, tileset, tile }| {
-            self.draw_background(&tileset, *tile, *x, *y)
+            self.draw_background_tile(&tileset, *tile, *x, *y)
         });
 
         event.apply(|UpdateBackgroundText { x, y, font, text, alignment}|{

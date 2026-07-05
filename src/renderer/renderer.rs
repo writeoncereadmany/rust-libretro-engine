@@ -30,7 +30,7 @@ impl Renderer {
         self.buffer.texture.copy_from_slice(&self.background.texture);
     }
 
-    pub fn render_hud(&mut self) {
+    pub fn draw_hud(&mut self) {
         for y in 0..self.hud.height as usize {
             let row_start = y * self.hud.width as usize;
             for x in 0..self.hud.width as usize {
@@ -46,7 +46,7 @@ impl Renderer {
         sprite.draw_to(&mut self.background, assets, x, y, false);
     }
 
-    pub fn draw_hud(&mut self, assets: &Assets, sprite: &Sprite, x: i32, y: i32) {
+    pub fn draw_hud_sprite(&mut self, assets: &Assets, sprite: &Sprite, x: i32, y: i32) {
         sprite.draw_to(&mut self.hud, assets, x, y, false);
     }
 
@@ -66,7 +66,7 @@ impl Renderer {
         font.draw_text(&mut self.hud, assets, x, y, text, alignment);
     }
 
-    pub fn render(&self, ctx: &mut RunContext) {
+    pub fn present(&self, ctx: &mut RunContext) {
         self.buffer.render(ctx);
     }
 }
