@@ -7,26 +7,26 @@ use crate::renderer::spritefont::SpriteFont;
 use crate::renderer::tilesheet::TileSheet;
 use glob::glob;
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fs::File;
 use std::path::Path;
 use tiled::PropertyValue::StringValue;
 
 #[derive(Serialize, Deserialize)]
 pub struct Assets {
-    pub tilesheets: HashMap<String, TileSheet>,
-    pub maps: HashMap<String, Map>,
-    pub fonts: HashMap<String, SpriteFont>,
-    pub sprites: HashMap<String, Sprite>
+    pub tilesheets: BTreeMap<String, TileSheet>,
+    pub maps: BTreeMap<String, Map>,
+    pub fonts: BTreeMap<String, SpriteFont>,
+    pub sprites: BTreeMap<String, Sprite>
 }
 
 impl Assets {
     pub fn new() -> Self {
         Assets {
-            tilesheets: HashMap::new(),
-            maps: HashMap::new(),
-            fonts: HashMap::new(),
-            sprites: HashMap::new()
+            tilesheets: BTreeMap::new(),
+            maps: BTreeMap::new(),
+            fonts: BTreeMap::new(),
+            sprites: BTreeMap::new()
         }
     }
 
@@ -84,7 +84,7 @@ impl Assets {
             );
 
             if user_type == &Some("Font".to_string()) {
-                let mut glyphs = HashMap::new();
+                let mut glyphs = BTreeMap::new();
                 let mut error_glyph = Option::None;
                 for (tile_id, tile) in tileset.tiles() {
                     let x = tile_id % tileset.columns;
