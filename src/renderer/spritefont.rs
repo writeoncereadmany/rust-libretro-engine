@@ -1,8 +1,8 @@
 use crate::assets::Assets;
 use crate::renderer::sprite::Sprite;
 use crate::renderer::texture::Texture;
-use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use bincode::{Decode, Encode};
 
 #[derive(Clone, Copy)]
 pub enum HorizontalAlignment {
@@ -36,7 +36,7 @@ impl Alignment {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Encode, Decode)]
 pub struct SpriteFont {
     glyphs: BTreeMap<char, Sprite>,
     glyph_width: u32,

@@ -1,5 +1,6 @@
 use std::fs::File;
 use std::io::Write;
+use bincode::config;
 use clap::Parser;
 use engine::assets::Assets;
 
@@ -21,7 +22,7 @@ pub fn main() -> std::io::Result<()> {
     let mut assets = Assets::new();
     assets.load_from_filesystem(&args.source);
 
-    let binary_data = serde_json::to_vec(&assets)?;
+    let binary_data = bincode::encode_to_vec(&assets, config::standard()).unwrap();
     file_output.write(binary_data.as_slice())?;
     file_output.flush()
 }

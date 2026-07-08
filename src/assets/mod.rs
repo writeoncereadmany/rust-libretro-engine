@@ -6,13 +6,13 @@ use crate::renderer::sprite::Sprite;
 use crate::renderer::spritefont::SpriteFont;
 use crate::renderer::tilesheet::TileSheet;
 use glob::glob;
-use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 use std::fs::File;
 use std::path::Path;
+use bincode::{Decode, Encode};
 use tiled::PropertyValue::StringValue;
 
-#[derive(Serialize, Deserialize)]
+#[derive(Encode, Decode)]
 pub struct Assets {
     pub tilesheets: BTreeMap<String, TileSheet>,
     pub maps: BTreeMap<String, Map>,

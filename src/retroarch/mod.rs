@@ -10,6 +10,8 @@ use rust_libretro::{core::Core, env_version, sys::*};
 use std::ffi::{c_uint, CString};
 use std::slice;
 use std::sync::Arc;
+use bincode::config;
+use bincode::config::Configuration;
 use tracing::{span, Level};
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::fmt::format::FmtSpan;
@@ -112,7 +114,7 @@ impl<T: Application> Core for RetroarchCore<T> {
         let game_info = info.unwrap();
         let data = unsafe { slice::from_raw_parts(game_info.data as *const u8, game_info.size) };
 
-        let assets = serde_json::from_slice::<Assets>(data).unwrap();
+        let (assets, _size) : (Assets, usize) = bincode::decode_from_slice::<Assets, Configuration>(data, config::standard()).unwrap();
         let assets = Arc::new(assets);
         self.application = Some(T::new(assets.clone(), logger_worker));
         self.renderer = Some(AssetRenderer::new(Renderer::new(properties.width, properties.height), assets.clone()));

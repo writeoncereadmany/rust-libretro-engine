@@ -1,14 +1,14 @@
+use bincode::{Decode, Encode};
 use crate::assets::Assets;
 use crate::renderer::texture::Texture;
-use serde::{Deserialize, Serialize};
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Encode, Decode)]
 pub struct Sprite {
     pub tile_sheet: String,
     pub bounds: Bounds,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Encode, Decode)]
 pub struct Bounds {
     pub x: u32,
     pub y: u32,

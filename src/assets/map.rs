@@ -1,14 +1,14 @@
 use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
+use bincode::{Decode, Encode};
 use tiled::{PropertyValue, TileId};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Encode, Decode)]
 pub struct Map {
     pub tiles: Vec<Tile>,
     pub objects: Vec<Object>
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Encode, Decode)]
 pub struct Tile {
     pub id: TileId,
     pub x: i32,
@@ -17,7 +17,7 @@ pub struct Tile {
     pub user_type: Option<String>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Encode, Decode)]
 pub struct Object {
     pub x: f64,
     pub y: f64,
