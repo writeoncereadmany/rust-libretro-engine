@@ -4,4 +4,3 @@ pub mod renderer;
 pub mod assets;
 pub mod shapes;
 pub mod retroarch;
-pub mod export;

@@ -4,6 +4,12 @@ version = "0.1.0"
 edition = "2024"
 
 [lib]
+name = "engine"
+path = "src/lib.rs"
+
+[[bin]]
+name = "export_assets"
+path = "src/bin/export.rs"
 
 [dependencies]
 base64 = "0.22.1"

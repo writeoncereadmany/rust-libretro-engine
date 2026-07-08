@@ -1,7 +1,7 @@
 use std::fs::File;
 use std::io::Write;
 use clap::Parser;
-use crate::assets::Assets;
+use engine::assets::Assets;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None, ignore_errors = true)]
@@ -14,7 +14,7 @@ pub struct Args {
     pub output: String
 }
 
-pub fn export_assets() -> std::io::Result<()> {
+pub fn main() -> std::io::Result<()> {
     let args = Args::parse();
     let mut file_output = File::create(&args.output)?;
 
