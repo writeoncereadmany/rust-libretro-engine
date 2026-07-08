@@ -41,14 +41,17 @@ impl EventTrait for InputState {
     }
 }
 
+const ALL_JOYPAD_BUTTONS: [JoypadState; 16] = [
+    JoypadState::UP, JoypadState::DOWN, JoypadState::LEFT, JoypadState::RIGHT,
+    JoypadState::A, JoypadState::B, JoypadState::X, JoypadState::Y,
+    JoypadState::SELECT, JoypadState::START, JoypadState::L, JoypadState::R,
+    JoypadState::L2, JoypadState::R2, JoypadState::L3, JoypadState::R3];
 
 pub fn fire_input_events(current_input: JoypadState, old_input: JoypadState, events: &mut Events) {
     events.fire(InputState(current_input));
-    fire_presses_and_releases(JoypadState::LEFT, current_input, old_input, events);
-    fire_presses_and_releases(JoypadState::RIGHT, current_input, old_input, events);
-    fire_presses_and_releases(JoypadState::A, current_input, old_input, events);
-    fire_presses_and_releases(JoypadState::START, current_input, old_input, events);
-    fire_presses_and_releases(JoypadState::SELECT, current_input, old_input, events);
+    for button in &ALL_JOYPAD_BUTTONS {
+        fire_presses_and_releases(*button, current_input, old_input, events);
+    }
 }
 
 fn fire_presses_and_releases(
