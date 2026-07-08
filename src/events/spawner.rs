@@ -18,8 +18,7 @@ impl Spawner {
     }
 
     pub fn spawn(&self, object: &Object, events: &mut Events) {
-        // tiled goes from top-bottom, we want to go bottom-top, so invert y
-        let spawn = Spawn { x: object.x, y: -object.y, object };
+        let spawn = Spawn { x: object.x, y: object.y, object };
         self.spawns.get(&object.user_type).map(|f| f(spawn, events));
     }
 

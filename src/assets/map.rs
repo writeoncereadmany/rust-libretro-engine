@@ -29,6 +29,7 @@ pub fn load_map(map: tiled::Map) -> Map
 {
     let mut tiles = Vec::new();
     let mut objects = Vec::new();
+    let map_height = (map.height * map.tile_height) as f64;
     for layer in map.layers() {
         if let Some(tile_layer) = layer.as_tile_layer() {
             if let (Some(width), Some(height)) = (tile_layer.width(), tile_layer.height()) {
@@ -40,7 +41,7 @@ pub fn load_map(map: tiled::Map) -> Map
                             tiles.push(Tile {
                                 id: tile.id(),
                                 x,
-                                y,
+                                y: height as i32 - y - 1,
                                 tile_set_name: tile.get_tileset().name.clone(),
                                 user_type,
 
@@ -62,7 +63,7 @@ pub fn load_map(map: tiled::Map) -> Map
                 }
                 objects.push(Object {
                     x: object.x as f64,
-                    y: object.y as f64,
+                    y: map_height - object.y as f64,
                     user_type: get_user_type(&object).unwrap_or(String::new()),
                     properties
                 });
