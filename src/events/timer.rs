@@ -3,7 +3,9 @@ use std::cmp::Ordering;
 use std::collections::{BinaryHeap, VecDeque};
 use std::time::{Duration, Instant};
 
-pub type TimerId = u32;
+pub type TimerId = i32;
+
+pub const NO_TIMER_ID : TimerId = -1;
 
 struct TimerEvent {
     id: TimerId,
