@@ -69,9 +69,9 @@ impl SpriteFont {
         };
 
         let y = match alignment.vertical_alignment {
-            VerticalAlignment::TOP => y,
+            VerticalAlignment::TOP => y - self.glyph_height as i32,
             VerticalAlignment::MIDDLE => y - (self.glyph_height / 2) as i32,
-            VerticalAlignment::BOTTOM => y - self.glyph_height as i32,
+            VerticalAlignment::BOTTOM => y,
         };
 
         for glyph in text.chars() {
