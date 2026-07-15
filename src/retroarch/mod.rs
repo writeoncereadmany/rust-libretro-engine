@@ -2,12 +2,13 @@ use crate::assets::Assets;
 use crate::events::event::Events;
 use crate::renderer::asset_renderer::AssetRenderer;
 use crate::renderer::renderer::Renderer;
-use rust_libretro::contexts::{AudioContext, GenericContext, GetAvInfoContext, InitContext, LoadGameContext, RunContext, SetEnvironmentContext};
+use rust_libretro::contexts::{AudioContext, GenericContext, GetAvInfoContext, GetMemoryDataContext, GetMemorySizeContext, InitContext, LoadGameContext, RunContext, SetEnvironmentContext};
 use rust_libretro::proc::CoreOptions;
 use rust_libretro::sys::{retro_game_geometry, retro_game_info, retro_input_descriptor, retro_system_av_info, retro_system_timing, retro_usec_t};
 use rust_libretro::types::{JoypadState, PixelFormat, SystemInfo};
 use rust_libretro::{core::Core, env_version, sys::*};
 use std::ffi::{c_uint, CString};
+use std::os::raw::c_void;
 use std::slice;
 use std::sync::Arc;
 use bincode::config;
@@ -160,5 +161,13 @@ impl<T: Application> Core for RetroarchCore<T> {
         if let Some(ref mut application) = self.application {
             application.play(ctx);
         }
+    }
+
+    fn get_memory_data(&mut self, _id: std::os::raw::c_uint, _ctx: &mut GetMemoryDataContext) -> *mut c_void {
+        std::ptr::null_mut()
+    }
+
+    fn get_memory_size(&mut self, _id: std::os::raw::c_uint, _ctx: &mut GetMemorySizeContext) -> usize {
+        0
     }
 }
