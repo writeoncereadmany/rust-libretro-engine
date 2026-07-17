@@ -2,6 +2,8 @@ use crate::assets::Assets;
 use crate::events::event::Events;
 use crate::renderer::asset_renderer::AssetRenderer;
 use crate::renderer::renderer::Renderer;
+use bincode::config;
+use bincode::config::Configuration;
 use rust_libretro::contexts::{AudioContext, GenericContext, GetAvInfoContext, GetMemoryDataContext, GetMemorySizeContext, InitContext, LoadGameContext, RunContext, SetEnvironmentContext};
 use rust_libretro::proc::CoreOptions;
 use rust_libretro::sys::{retro_game_geometry, retro_game_info, retro_input_descriptor, retro_system_av_info, retro_system_timing, retro_usec_t};
@@ -11,8 +13,6 @@ use std::ffi::{c_uint, CString};
 use std::os::raw::c_void;
 use std::slice;
 use std::sync::Arc;
-use bincode::config;
-use bincode::config::Configuration;
 use tracing::{span, Level};
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::fmt::format::FmtSpan;
@@ -35,6 +35,14 @@ pub trait Application {
     fn play(&mut self, _ctx: &mut AudioContext);
 
     fn properties() -> ApplicationProperties;
+
+    fn get_memory_data(&mut self, _id: std::os::raw::c_uint, _ctx: &mut GetMemoryDataContext) -> *mut c_void {
+        std::ptr::null_mut()
+    }
+
+    fn get_memory_size(&mut self, _id: std::os::raw::c_uint, _ctx: &mut GetMemorySizeContext) -> usize {
+        0
+    }
 }
 
 const PIXEL_FORMAT: PixelFormat = PixelFormat::XRGB1555;
@@ -163,11 +171,19 @@ impl<T: Application> Core for RetroarchCore<T> {
         }
     }
 
-    fn get_memory_data(&mut self, _id: std::os::raw::c_uint, _ctx: &mut GetMemoryDataContext) -> *mut c_void {
-        std::ptr::null_mut()
+    fn get_memory_data(&mut self, id: std::os::raw::c_uint, _ctx: &mut GetMemoryDataContext) -> *mut c_void {
+        if let Some(application) = self.application.as_mut() && id == RETRO_MEMORY_SAVE_RAM {
+            application.get_memory_data(id, _ctx)
+        } else {
+            std::ptr::null_mut()
+        }
     }
 
-    fn get_memory_size(&mut self, _id: std::os::raw::c_uint, _ctx: &mut GetMemorySizeContext) -> usize {
-        0
+    fn get_memory_size(&mut self, id: std::os::raw::c_uint, _ctx: &mut GetMemorySizeContext) -> usize {
+        if let Some(application) = self.application.as_mut() && id == RETRO_MEMORY_SAVE_RAM {
+            application.get_memory_size(id, _ctx)
+        } else {
+            0
+        }
     }
 }
