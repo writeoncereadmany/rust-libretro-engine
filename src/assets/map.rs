@@ -4,6 +4,8 @@ use tiled::{PropertyValue, TileId};
 
 #[derive(Encode, Decode)]
 pub struct Map {
+    pub tile_height: i32,
+    pub tile_width: i32,
     pub tiles: Vec<Tile>,
     pub objects: Vec<Object>
 }
@@ -27,6 +29,8 @@ pub struct Object {
 
 pub fn load_map(map: tiled::Map) -> Map
 {
+    let tile_height = map.tile_height as i32;
+    let tile_width = map.tile_width as i32;
     let mut tiles = Vec::new();
     let mut objects = Vec::new();
     let map_height = (map.height * map.tile_height) as f64;
@@ -70,7 +74,7 @@ pub fn load_map(map: tiled::Map) -> Map
             }
         }
     }
-    Map { tiles, objects }
+    Map { tile_height, tile_width, tiles, objects }
 }
 
 fn get_user_type(object : &tiled::Object) -> Option<String> {
