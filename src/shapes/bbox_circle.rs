@@ -1,3 +1,5 @@
+use std::collections::VecDeque;
+use itertools::Itertools;
 use super::projection::{collision_on_axis, intersects_on_axis, intersects_on_axis_moving, Projects};
 use crate::shapes::bbox::{corners, corners_2, translate, BBox};
 use crate::shapes::circle;
@@ -61,7 +63,7 @@ pub fn collides(
         },
         (Some(x_push), None) => corner_collision(bbox, circle, dv, x_push),
         (None, Some(y_push)) => corner_collision(bbox, circle, dv, y_push),
-        (None, None) => None
+        (None, None) => corner_collision_all(bbox, circle, dv)
     }
 }
 
@@ -92,6 +94,16 @@ fn hits_circle_side_flush(circle: &Circle, box_at_time_of_collision: &BBox, push
     let side_projection = box_at_time_of_collision.project(side_axis);
     let center_proj = circle.center.dot(side_axis);
     side_projection.min <= center_proj && center_proj <= side_projection.max
+}
+
+fn corner_collision_all(BBox { left, right, top, bottom }: &BBox, circle: &Circle, dv: &(f64, f64)) -> Option<Collision> {
+    [(left, top), (left, bottom), (right, top), (right, bottom)]
+        .iter()
+        .map(|&(x, y)| circle::collides(&Circle { center: (*x, *y), radius: 0.0}, circle, dv))
+        .flatten()
+        .sorted_by(|a, b| { a.dt.total_cmp(&b.dt)})
+        .collect::<VecDeque<Collision>>()
+        .pop_front()
 }
 
 pub fn nearest_corner(point: &(f64, f64), candidates: &Vec<(f64, f64)>) -> (f64, f64) {
