@@ -158,6 +158,24 @@ impl <A: Variable, B: Variable, C: Variable, D: Variable> Variable for (A, B, C,
     }
 }
 
+impl <A: Variable, B: Variable, C: Variable, D: Variable, E:Variable> Variable for (A, B, C, D, E) {
+    fn set(self, entity: &mut Entity) {
+        let (a, b, c, d, e) = self;
+        a.set(entity);
+        b.set(entity);
+        c.set(entity);
+        d.set(entity);
+        e.set(entity);
+    }
+    fn remove(entity: &mut Entity) {
+        A::remove(entity);
+        B::remove(entity);
+        C::remove(entity);
+        D::remove(entity);
+        E::remove(entity);
+    }
+}
+
 impl <T: Component> Component for Option<T> {
     fn get(entity: &Entity) -> Option<Option<T>> {
         Some(T::get(entity).map(|component| component.clone()))
