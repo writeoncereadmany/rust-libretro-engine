@@ -96,10 +96,10 @@ fn hits_circle_side_flush(circle: &Circle, box_at_time_of_collision: &BBox, push
     side_projection.min <= center_proj && center_proj <= side_projection.max
 }
 
-fn corner_collision_all(BBox { left, right, top, bottom }: &BBox, circle: &Circle, dv: &(f64, f64)) -> Option<Collision> {
-    [(left, top), (left, bottom), (right, top), (right, bottom)]
+fn corner_collision_all(bbox: &BBox, circle: &Circle, dv: &(f64, f64)) -> Option<Collision> {
+    corners(bbox)
         .iter()
-        .map(|&(x, y)| circle::collides(&Circle { center: (*x, *y), radius: 0.0}, circle, dv))
+        .map(|&(x, y)| circle::collides(&Circle { center: (x, y), radius: 0.0}, circle, dv))
         .flatten()
         .sorted_by(|a, b| { a.dt.total_cmp(&b.dt)})
         .collect::<VecDeque<Collision>>()
