@@ -1,7 +1,13 @@
 use std::collections::HashMap;
 use std::any::{Any, TypeId};
+use linkme::distributed_slice;
 use super::event::{EventTrait, Events};
 use crate::entities::entity::Entities;
+
+pub type SystemRegistrar = fn(&mut Dispatcher);
+
+#[distributed_slice]
+pub static SYSTEMS: [SystemRegistrar] = [..];
 
 pub struct Dispatcher {
     functions: HashMap<TypeId, Box<dyn Any>>
@@ -10,6 +16,14 @@ pub struct Dispatcher {
 impl Dispatcher {
     pub fn new() -> Self {
         Dispatcher { functions: HashMap::new() }
+    }
+
+    pub fn discover() -> Self {
+        let mut dispatcher = Dispatcher::new();
+        for register in SYSTEMS.iter().copied() {
+            register(&mut dispatcher);
+        }
+        dispatcher
     }
 
     pub fn register<Event: EventTrait + 'static>(&mut self, f: fn(&Event, &mut Entities, &mut Events)) {
