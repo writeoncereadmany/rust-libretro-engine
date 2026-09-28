@@ -11,8 +11,8 @@ use rust_libretro::types::{JoypadState, PixelFormat, SystemInfo};
 use rust_libretro::{core::Core, env_version, sys::*};
 use std::ffi::{c_uint, CString};
 use std::os::raw::c_void;
+use std::rc::Rc;
 use std::slice;
-use std::sync::Arc;
 use tracing::{span, Level};
 use tracing_appender::non_blocking::WorkerGuard;
 use tracing_subscriber::fmt::format::FmtSpan;
@@ -26,7 +26,7 @@ pub struct ApplicationProperties {
 }
 
 pub trait Application {
-    fn new(assets: Arc<Assets>, logger_worker: Option<WorkerGuard>) -> Self;
+    fn new(assets: Rc<Assets>, logger_worker: Option<WorkerGuard>) -> Self;
 
     fn update(&mut self, input: JoypadState, delta_time: u64, renderer: &mut AssetRenderer, events: &mut Events);
 
@@ -124,7 +124,7 @@ impl<T: Application> Core for RetroarchCore<T> {
         let data = unsafe { slice::from_raw_parts(game_info.data as *const u8, game_info.size) };
 
         let (assets, _size) : (Assets, usize) = bincode::decode_from_slice::<Assets, Configuration>(data, config::standard()).unwrap();
-        let assets = Arc::new(assets);
+        let assets = Rc::new(assets);
         self.application = Some(T::new(assets.clone(), logger_worker));
         self.renderer = Some(AssetRenderer::new(Renderer::new(properties.width, properties.height), assets.clone()));
 

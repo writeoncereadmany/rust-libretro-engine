@@ -4,16 +4,16 @@ use crate::renderer::background_renderer::{UpdateBackgroundSprite, UpdateBackgro
 use crate::renderer::renderer::Renderer;
 use crate::renderer::spritefont::Alignment;
 use rust_libretro::contexts::RunContext;
-use std::sync::Arc;
+use std::rc::Rc;
 use tiled::TileId;
 
 pub struct AssetRenderer {
     renderer: Renderer,
-    assets: Arc<Assets>,
+    assets: Rc<Assets>,
 }
 
 impl AssetRenderer {
-    pub fn new(renderer: Renderer, assets: Arc<Assets>) -> Self {
+    pub fn new(renderer: Renderer, assets: Rc<Assets>) -> Self {
         AssetRenderer { renderer, assets }
     }
 
