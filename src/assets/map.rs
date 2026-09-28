@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use bincode::{Decode, Encode};
 use tiled::{PropertyValue, TileId};
 
-#[derive(Encode, Decode)]
+#[derive(Encode, Decode, Clone)]
 pub struct Map {
     pub tile_height: i32,
     pub tile_width: i32,
@@ -10,7 +10,7 @@ pub struct Map {
     pub objects: Vec<Object>
 }
 
-#[derive(Encode, Decode)]
+#[derive(Encode, Decode, Clone)]
 pub struct Tile {
     pub id: TileId,
     pub x: i32,
@@ -19,10 +19,12 @@ pub struct Tile {
     pub user_type: Option<String>,
 }
 
-#[derive(Encode, Decode)]
+#[derive(Encode, Decode, Clone)]
 pub struct Object {
+    pub id: TileId,
     pub x: f64,
     pub y: f64,
+    pub tile_set_name: String,
     pub user_type: String,
     pub properties: HashMap<String, String>
 }
@@ -66,6 +68,8 @@ pub fn load_map(map: tiled::Map) -> Map
                     };
                 }
                 objects.push(Object {
+                    id: object.get_tile().unwrap().id(),
+                    tile_set_name: object.get_tile().unwrap().get_tileset().name.clone(),
                     x: object.x as f64,
                     y: map_height - object.y as f64,
                     user_type: get_user_type(&object).unwrap_or(String::new()),
