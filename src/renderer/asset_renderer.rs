@@ -38,6 +38,15 @@ impl AssetRenderer {
         self.renderer.draw_sprite(&self.assets, self.assets.sprite(sprite), x, y, flip_x);
     }
 
+    pub fn draw_tile(&mut self, tileset: &str, tile: TileId, x: i32, y: i32) {
+        if let Some(tilesheet) = self.assets.tilesheets.get(tileset) {
+            self.renderer.draw_sprite(&self.assets, &tilesheet.tile(tile), x, y, false);
+        }
+        else {
+            self.draw_sprite("error", x, y, false);
+        }
+    }
+
     pub fn draw_text(&mut self, text: &str, font: &str, x: i32, y: i32, alignment: Alignment) {
         self.renderer.draw_text(&self.assets, self.assets.fonts.get(font).unwrap(), text, x, y, alignment);
     }
