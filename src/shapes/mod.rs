@@ -6,3 +6,4 @@ mod bbox;
 mod bbox_circle;
 mod circle;
 mod line;
+mod triangle;

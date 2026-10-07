@@ -1,14 +1,15 @@
 use crate::entities::entity::{Component, Entity, Variable};
 use crate::shapes::collision::Collision;
 use crate::shapes::projection::{Projection, Projects};
-use crate::shapes::shape::Shape::{BBox, Circle};
+use crate::shapes::shape::Shape::{BBox, Circle, Triangle};
 use crate::shapes::vec2d::Vec2d;
-use crate::shapes::{bbox, bbox_circle, circle};
+use crate::shapes::{bbox, bbox_circle, circle, triangle};
 
 #[derive(Clone, Debug)]
 pub enum Shape {
     Circle(circle::Circle),
     BBox(bbox::BBox),
+    Triangle(triangle::Triangle),
 }
 
 impl Component for Shape {
@@ -45,6 +46,7 @@ impl Shape {
         match self {
             Circle(circle) => { Circle(circle::translate(circle, dp)) }
             BBox(bbox) => { BBox(bbox::translate(bbox, dp)) }
+            Triangle(triangle) => { Triangle(triangle::translate(triangle, dp)) }
         }
     }
 
@@ -56,12 +58,19 @@ impl Shape {
             (BBox(bbox1), BBox(bbox2)) => {
                 bbox::intersects(bbox1, bbox2)
             }
+            (Triangle(tri1), Triangle(tri2)) => {
+                triangle::intersects(tri1, tri2)
+            }
             (Circle(circle), BBox(bbox)) => {
                 bbox_circle::intersects(bbox, circle)
             }
             (BBox(bbox), Circle(circle)) => {
                 bbox_circle::intersects(bbox, circle)
             }
+            (Triangle(_), Circle(_)) => { todo!() }
+            (Triangle(_), BBox(_)) => { todo!() }
+            (Circle(_), Triangle(_)) => { todo!() }
+            (BBox(_), Triangle(_)) => { todo!() }
         }
     }
 
@@ -73,12 +82,19 @@ impl Shape {
             (BBox(bbox1), BBox(bbox2)) => {
                 bbox::intersects_moving(bbox1, bbox2, dv)
             }
+            (Triangle(tri1), Triangle(tri2)) => {
+                triangle::intersects_moving(tri1, tri2, dv)
+            }
             (Circle(circle), BBox(bbox)) => {
                 bbox_circle::intersects_moving(bbox, circle, &dv.scale(&-1.0))
             }
             (BBox(bbox), Circle(circle)) => {
                 bbox_circle::intersects_moving(bbox, circle, dv)
             }
+            (Triangle(_), BBox(_)) => { todo!() }
+            (Triangle(_), Circle(_)) => { todo!() }
+            (BBox(_), Triangle(_)) => { todo!() }
+            (Circle(_), Triangle(_)) => { todo!() }
         }
     }
 
@@ -96,6 +112,9 @@ impl Shape {
             (BBox(bbox), Circle(circle)) => {
                 bbox_circle::collides(bbox, circle, dv)
             }
+            (Triangle(_), _) => { todo!() }
+            (Circle(_), Triangle(_)) => { todo!() }
+            (BBox(_), Triangle(_)) => { todo!() }
         }
     }
     
@@ -103,6 +122,9 @@ impl Shape {
         match self {
             Circle(circle) => circle.center,
             BBox(bbox) => ((bbox.left + bbox.right) / 2.0, (bbox.bottom + bbox.top) / 2.0),
+            Triangle(triangle::Triangle { vertices: [(x1, y1), (x2, y2), (x3, y3)], .. } ) => {
+                ((x1 + x2 + x3) / 3.0, (y1 + y2 + y3) / 3.0)
+            }
         }
     }
 }
@@ -112,6 +134,7 @@ impl Projects for Shape {
         match self {
             Circle(circle) => { circle.project(axis) }
             BBox(bbox) => { bbox.project(axis) }
+            Triangle(triangle) => { triangle.project(axis) }
         }
     }
 }

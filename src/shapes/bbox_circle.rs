@@ -27,7 +27,7 @@ pub fn intersects_moving(bbox: &BBox, circle: &Circle, dv: &(f64, f64)) -> bool 
     }
 
     intersects_on_axis_moving(bbox, circle, dv, &UNIT_X) &&
-        intersects_on_axis_moving(bbox, circle, dv, &UNIT_Y) && {
+    intersects_on_axis_moving(bbox, circle, dv, &UNIT_Y) && {
         let normal_to_travel = dv.unit().perpendicular();
         // no movement normal to the direction of movement, so we can just use intersects,
         // instead of intersects moving.
