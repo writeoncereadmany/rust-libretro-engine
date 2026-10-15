@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use crate::shapes::collision::Collision;
 use crate::shapes::vec2d::{Vec2d, UNIT_X, UNIT_Y};
 
@@ -55,25 +56,10 @@ pub fn collides(
         return None;
     }
 
-    match (collision_on_axis(bbox1, bbox2, dv, &UNIT_X), collision_on_axis(bbox1, bbox2, dv, &UNIT_Y))
-    {
-        (Some(x_push), Some(y_push)) => Some(pick_push(x_push, y_push)),
-        (Some(x_push), None) => Some(x_push),
-        (None, Some(y_push)) => Some(y_push),
-        (None, None) => None
-    }
-}
-
-fn pick_push(x_push: Collision, y_push: Collision) -> Collision {
-    // sliding factor: if the pushout on either axis is *tiny*, favour that over
-    // the earlier push.
-    if x_push.push.sq_len() < 0.01 {
-        return x_push;
-    }
-    if y_push.push.sq_len() < 0.01 {
-        return y_push;
-    }
-    if x_push.dt > y_push.dt { x_push } else { y_push }
+    [UNIT_X, UNIT_Y].iter()
+        .filter_map(|axis| collision_on_axis(bbox1, bbox2, dv, axis))
+        .sorted_by(|c1, c2| f64::total_cmp(&c1.dt, &c2.dt).reverse())
+        .next()
 }
 
 pub fn corners(&BBox { left, right, top, bottom }: &BBox) -> Vec<(f64, f64)> {

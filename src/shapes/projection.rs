@@ -121,9 +121,4 @@ mod tests {
         let b = Projection { min: 2.0, max: 4.0 };
         assert_eq!(intersects(&b, &a), true);
     }
-
-    #[test]
-    fn rounding() {
-        assert_eq!(252.00000000000006 + 12.0, 264.0);
-    }
 }

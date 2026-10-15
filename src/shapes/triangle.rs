@@ -1,5 +1,7 @@
-use crate::shapes::projection::{intersects_on_axis, intersects_on_axis_moving, Projection, Projects};
+use crate::shapes::collision::Collision;
+use crate::shapes::projection::{collision_on_axis, intersects_on_axis, intersects_on_axis_moving, Projection, Projects};
 use crate::shapes::vec2d::Vec2d;
+use itertools::Itertools;
 
 #[derive(Debug, Clone)]
 pub struct Triangle {
@@ -46,6 +48,22 @@ pub fn intersects_moving(tri1: &Triangle, tri2: &Triangle, dv: &(f64, f64)) -> b
         let normal_dv = dv.perpendicular().unit();
         intersects_on_axis_moving(tri1, tri2, dv, &normal_dv)
     }
+}
+
+pub fn collides(
+    triangle1: &Triangle,
+    triangle2: &Triangle,
+    dv: &(f64, f64),
+) -> Option<Collision> {
+    if !intersects_moving(triangle1, triangle2, dv) || intersects(triangle1, triangle2) {
+        return None;
+    }
+
+    triangle1.normals.iter().chain(triangle2.normals.iter())
+        .filter_map(|axis| collision_on_axis(triangle1, triangle2, dv, axis))
+        .sorted_by(|c1, c2| f64::total_cmp(&c1.dt, &c2.dt).reverse())
+        .next()
+
 }
 
 impl Projects for Triangle {

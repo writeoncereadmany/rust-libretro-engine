@@ -3,7 +3,7 @@ use crate::shapes::collision::Collision;
 use crate::shapes::projection::{Projection, Projects};
 use crate::shapes::shape::Shape::{BBox, Circle, Triangle};
 use crate::shapes::vec2d::Vec2d;
-use crate::shapes::{bbox, bbox_circle, circle, triangle};
+use crate::shapes::{bbox, bbox_circle, bbox_triangle, circle, triangle};
 
 #[derive(Clone, Debug)]
 pub enum Shape {
@@ -19,10 +19,10 @@ impl Component for Shape {
 }
 
 impl Variable for Shape {
-    fn set(self, entity: &mut Entity) { 
+    fn set(self, entity: &mut Entity) {
         entity.set(self)
     }
-    
+
     fn remove(entity: &mut Entity) {
         entity.remove::<Self>()
     }
@@ -42,6 +42,10 @@ impl Shape {
         Circle(circle::Circle { center, radius })
     }
 
+    pub fn triangle(vertices: [(f64, f64);3]) -> Self {
+        Triangle(triangle::Triangle::new(vertices))
+    }
+
     pub fn translate(&self, dp: &(f64, f64)) -> Shape {
         match self {
             Circle(circle) => { Circle(circle::translate(circle, dp)) }
@@ -52,25 +56,15 @@ impl Shape {
 
     pub fn intersects(&self, other: &Shape) -> bool {
         match (self, other) {
-            (Circle(circle1), Circle(circle2)) => {
-                circle::intersects(circle1, circle2)
-            }
-            (BBox(bbox1), BBox(bbox2)) => {
-                bbox::intersects(bbox1, bbox2)
-            }
-            (Triangle(tri1), Triangle(tri2)) => {
-                triangle::intersects(tri1, tri2)
-            }
-            (Circle(circle), BBox(bbox)) => {
-                bbox_circle::intersects(bbox, circle)
-            }
-            (BBox(bbox), Circle(circle)) => {
-                bbox_circle::intersects(bbox, circle)
-            }
+            (Circle(circle1), Circle(circle2)) => circle::intersects(circle1, circle2),
+            (BBox(bbox1), BBox(bbox2)) => bbox::intersects(bbox1, bbox2),
+            (Triangle(tri1), Triangle(tri2)) => triangle::intersects(tri1, tri2),
+            (Circle(circle), BBox(bbox)) => bbox_circle::intersects(bbox, circle),
+            (BBox(bbox), Circle(circle)) => bbox_circle::intersects(bbox, circle),
+            (Triangle(triangle), BBox(bbox)) => bbox_triangle::intersects(bbox, triangle),
+            (BBox(bbox), Triangle(triangle)) => bbox_triangle::intersects(bbox, triangle),
             (Triangle(_), Circle(_)) => { todo!() }
-            (Triangle(_), BBox(_)) => { todo!() }
             (Circle(_), Triangle(_)) => { todo!() }
-            (BBox(_), Triangle(_)) => { todo!() }
         }
     }
 
@@ -91,9 +85,13 @@ impl Shape {
             (BBox(bbox), Circle(circle)) => {
                 bbox_circle::intersects_moving(bbox, circle, dv)
             }
-            (Triangle(_), BBox(_)) => { todo!() }
+            (BBox(bbox), Triangle(triangle)) => {
+                bbox_triangle::intersects_moving(bbox, triangle, dv)
+            }
+            (Triangle(triangle), BBox(bbox)) => {
+                bbox_triangle::intersects_moving(bbox, triangle, &dv.scale(&-1.0))
+            }
             (Triangle(_), Circle(_)) => { todo!() }
-            (BBox(_), Triangle(_)) => { todo!() }
             (Circle(_), Triangle(_)) => { todo!() }
         }
     }
@@ -112,12 +110,20 @@ impl Shape {
             (BBox(bbox), Circle(circle)) => {
                 bbox_circle::collides(bbox, circle, dv)
             }
-            (Triangle(_), _) => { todo!() }
+            (Triangle(triangle1), Triangle(triangle2)) => {
+                triangle::collides(triangle1, triangle2, dv)
+            }
+            (Triangle(triangle), BBox(bbox)) => {
+                bbox_triangle::collides(bbox, triangle, &dv.scale(&-1.0)).map(|col| col.invert())
+            }
+            (BBox(bbox), Triangle(triangle)) => {
+                bbox_triangle::collides(bbox, triangle, dv)
+            }
             (Circle(_), Triangle(_)) => { todo!() }
-            (BBox(_), Triangle(_)) => { todo!() }
+            (Triangle(_), Circle(_)) => { todo!() }
         }
     }
-    
+
     pub fn center_of_mass(&self) -> (f64, f64) {
         match self {
             Circle(circle) => circle.center,
