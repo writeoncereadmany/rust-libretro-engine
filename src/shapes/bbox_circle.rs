@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::collections::VecDeque;
 use itertools::Itertools;
 use super::projection::{collision_on_axis, intersects_on_axis, intersects_on_axis_moving, Projects};
@@ -5,12 +6,12 @@ use crate::shapes::bbox::{corners, corners_2, translate, BBox};
 use crate::shapes::circle;
 use crate::shapes::circle::Circle;
 use crate::shapes::collision::Collision;
-use crate::shapes::vec2d::{Vec2d, UNIT_X, UNIT_Y};
+use crate::shapes::vec2d::{nearest, Vec2d, UNIT_X, UNIT_Y};
 
 pub fn intersects(bbox: &BBox, circle: &Circle) -> bool {
     intersects_on_axis(bbox, circle, &UNIT_X) &&
         intersects_on_axis(bbox, circle, &UNIT_Y) && {
-        let closest_corner = nearest_corner(&circle.center, &corners(bbox));
+        let closest_corner = nearest_corner(&circle.center, bbox);
         let separation = circle.center.sub(&closest_corner);
         if separation.sq_len() == 0.0 {
             true
@@ -33,8 +34,10 @@ pub fn intersects_moving(bbox: &BBox, circle: &Circle, dv: &(f64, f64)) -> bool 
         // instead of intersects moving.
         intersects_on_axis(bbox, circle, &normal_to_travel)
     } && {
-        let corners = corners_2(bbox, &translate(bbox, dv));
-        let nearest_corner = nearest_corner(&circle.center, &corners);
+        let nearest_corner = nearest(&circle.center, &[
+            nearest_corner(&circle.center, bbox),
+            nearest_corner(&circle.center, &translate(bbox, dv))
+        ]);
         let separation = circle.center.sub(&nearest_corner);
         if separation.sq_len() == 0.0 {
             true
@@ -83,7 +86,7 @@ pub fn corner_collision(
     if hits_circle_side_flush(circle, &box_at_time_of_collision, side_collision.push) {
         Some(side_collision)
     } else {
-        let nearest_corner = nearest_corner(&circle.center, &corners(&box_at_time_of_collision));
+        let nearest_corner = nearest_corner(&circle.center, &box_at_time_of_collision);
         let nearest_corner_start_point = nearest_corner.sub(&dv_to_collision);
         circle::collides(&Circle { center: nearest_corner_start_point, radius: 0.0}, circle, dv)
     }
@@ -106,17 +109,14 @@ fn corner_collision_all(bbox: &BBox, circle: &Circle, dv: &(f64, f64)) -> Option
         .pop_front()
 }
 
-pub fn nearest_corner(point: &(f64, f64), candidates: &Vec<(f64, f64)>) -> (f64, f64) {
-    let mut nearest_corner = (f64::NAN, f64::NAN);
-    let mut closest_sq_dist = f64::INFINITY;
-    for candidate in candidates {
-        let sq_dist = point.sub(candidate).sq_len();
-        if sq_dist < closest_sq_dist {
-            nearest_corner = *candidate;
-            closest_sq_dist = sq_dist;
-        }
+pub fn nearest_corner((px, py): &(f64, f64), bbox: &BBox) -> (f64, f64) {
+    let (bx, by) = ((bbox.left + bbox.right) / 2.0, (bbox.bottom + bbox.top) / 2.0);
+    match (f64::total_cmp(px, &bx), f64::total_cmp(py, &by)) {
+        (Ordering::Less, Ordering::Less) => (bbox.left, bbox.bottom),
+        (Ordering::Less, _) => (bbox.left, bbox.top),
+        (_, Ordering::Less) => (bbox.right, bbox.bottom),
+        (_, _) => (bbox.right, bbox.top)
     }
-    nearest_corner
 }
 
 #[cfg(test)]
@@ -125,11 +125,6 @@ mod tests {
     use crate::shapes::collision::eq_collision;
     use googletest::assert_that;
     use googletest::matchers::{none, some};
-
-    #[test]
-    fn find_nearest_corner() {
-        assert_eq!(nearest_corner(&(0.0, 0.0), &vec![(0.0, 2.0), (3.0, 0.0), (1.0, 1.0)]), (1.0, 1.0));
-    }
 
     // two interesting cases for static box/circle intersection checking:
     // 1: circle center is more than a radius away from any point, but circle intersects edge

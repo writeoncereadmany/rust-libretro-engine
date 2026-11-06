@@ -1,3 +1,4 @@
+use std::iter;
 use crate::shapes::collision::Collision;
 use crate::shapes::projection::{collision_on_axis, intersects_on_axis, intersects_on_axis_moving, Projection, Projects};
 use crate::shapes::vec2d::Vec2d;
@@ -43,7 +44,7 @@ pub fn intersects_moving(tri1: &Triangle, tri2: &Triangle, dv: &(f64, f64)) -> b
         return intersects(tri1, tri2)
     }
 
-    tri1.normals.iter().chain(tri2.normals.iter())
+    tri1.normals.iter().chain(tri2.normals.iter()).chain(iter::once(&dv.perpendicular().unit()))
         .all(|normal| intersects_on_axis_moving(tri1, tri2, dv, &normal)) && {
         let normal_dv = dv.perpendicular().unit();
         intersects_on_axis_moving(tri1, tri2, dv, &normal_dv)
@@ -63,7 +64,6 @@ pub fn collides(
         .filter_map(|axis| collision_on_axis(triangle1, triangle2, dv, axis))
         .sorted_by(|c1, c2| f64::total_cmp(&c1.dt, &c2.dt).reverse())
         .next()
-
 }
 
 impl Projects for Triangle {

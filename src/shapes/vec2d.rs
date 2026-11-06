@@ -60,3 +60,16 @@ impl Vec2d<(f64, f64)> for (f64, f64) {
         (self.0 - ox, self.1 - oy)
     }
 }
+
+pub fn nearest(reference: &(f64, f64), options: &[(f64, f64)]) -> (f64, f64) {
+    let mut nearest = (f64::INFINITY, f64::INFINITY);
+    let mut shortest_sq_len = f64::INFINITY;
+    for option in options {
+        let current_sq_len = option.sub(reference).sq_len();
+        if current_sq_len > shortest_sq_len {
+            shortest_sq_len = current_sq_len;
+            nearest = option.clone();
+        }
+    }
+    nearest
+}

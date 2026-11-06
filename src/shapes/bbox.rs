@@ -39,12 +39,9 @@ pub fn intersects_moving(bbox1: &BBox, bbox2: &BBox, dv: &(f64, f64)) -> bool {
     if dv.sq_len() == 0.0 {
         return intersects(bbox1, bbox2)
     }
-
-    intersects_on_axis_moving(bbox1, bbox2, dv, &UNIT_X) &&
-    intersects_on_axis_moving(bbox1, bbox2, dv, &UNIT_Y) && {
-        let normal_dv = dv.perpendicular().unit();
-        intersects_on_axis_moving(bbox1, bbox2, dv, &normal_dv)
-    }
+    
+    [UNIT_X, UNIT_Y, dv.perpendicular().unit()].iter()
+        .all(|axis| intersects_on_axis_moving(bbox1, bbox2, dv, &axis))
 }
 
 pub fn collides(
