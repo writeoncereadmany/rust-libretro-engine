@@ -8,3 +8,4 @@ mod circle;
 mod line;
 mod triangle;
 mod bbox_triangle;
+mod circle_triangle;

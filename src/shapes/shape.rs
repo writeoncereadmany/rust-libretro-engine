@@ -3,7 +3,7 @@ use crate::shapes::collision::Collision;
 use crate::shapes::projection::{Projection, Projects};
 use crate::shapes::shape::Shape::{BBox, Circle, Triangle};
 use crate::shapes::vec2d::Vec2d;
-use crate::shapes::{bbox, bbox_circle, bbox_triangle, circle, triangle};
+use crate::shapes::{bbox, bbox_circle, bbox_triangle, circle, circle_triangle, triangle};
 
 #[derive(Clone, Debug)]
 pub enum Shape {
@@ -63,8 +63,8 @@ impl Shape {
             (BBox(bbox), Circle(circle)) => bbox_circle::intersects(bbox, circle),
             (Triangle(triangle), BBox(bbox)) => bbox_triangle::intersects(bbox, triangle),
             (BBox(bbox), Triangle(triangle)) => bbox_triangle::intersects(bbox, triangle),
-            (Triangle(_), Circle(_)) => { todo!() }
-            (Circle(_), Triangle(_)) => { todo!() }
+            (Triangle(triangle), Circle(circle)) => { circle_triangle::intersects(triangle, circle) }
+            (Circle(circle), Triangle(triangle)) => { circle_triangle::intersects(triangle, circle) }
         }
     }
 
@@ -91,8 +91,12 @@ impl Shape {
             (Triangle(triangle), BBox(bbox)) => {
                 bbox_triangle::intersects_moving(bbox, triangle, &dv.scale(&-1.0))
             }
-            (Triangle(_), Circle(_)) => { todo!() }
-            (Circle(_), Triangle(_)) => { todo!() }
+            (Triangle(triangle), Circle(circle)) => { 
+                circle_triangle::intersects_moving(triangle, circle, dv) 
+            }
+            (Circle(circle), Triangle(triangle)) => { 
+                circle_triangle::intersects_moving(triangle, circle, &dv.scale(&-1.0)) 
+            }
         }
     }
 
@@ -119,8 +123,12 @@ impl Shape {
             (BBox(bbox), Triangle(triangle)) => {
                 bbox_triangle::collides(bbox, triangle, dv)
             }
-            (Circle(_), Triangle(_)) => { todo!() }
-            (Triangle(_), Circle(_)) => { todo!() }
+            (Circle(circle), Triangle(triangle)) => { 
+                circle_triangle::collides(triangle, circle, &dv.scale(&-1.0)).map(|col| col.invert())
+            }
+            (Triangle(triangle), Circle(circle)) => { 
+                circle_triangle::collides(triangle, circle, dv) 
+            }
         }
     }
 
