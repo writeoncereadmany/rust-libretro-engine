@@ -63,13 +63,6 @@ pub fn corners(&BBox { left, right, top, bottom }: &BBox) -> Vec<(f64, f64)> {
     vec![(left, top), (right, top), (left, bottom), (right, bottom)]
 }
 
-pub fn corners_2(
-    &BBox { left: l1, right: r1, top: t1, bottom: b1 }: &BBox,
-    &BBox { left: l2, right: r2, top: t2, bottom: b2 }: &BBox) -> Vec<(f64, f64)>
-{
-    vec![(l1, t1), (r1, t1), (l1, b1), (r1, b1), (l2, t2), (r2, t2), (l2, b2), (r2, b2)]
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;

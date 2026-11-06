@@ -3,7 +3,7 @@ use crate::shapes::circle;
 use crate::shapes::circle::Circle;
 use crate::shapes::collision::Collision;
 use crate::shapes::triangle::{translate, Triangle};
-use crate::shapes::vec2d::{nearest, Vec2d, UNIT_X, UNIT_Y};
+use crate::shapes::vec2d::{nearest, Vec2d};
 use itertools::Itertools;
 use std::collections::VecDeque;
 

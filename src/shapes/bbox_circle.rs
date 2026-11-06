@@ -1,12 +1,12 @@
-use std::cmp::Ordering;
-use std::collections::VecDeque;
-use itertools::Itertools;
 use super::projection::{collision_on_axis, intersects_on_axis, intersects_on_axis_moving, Projects};
-use crate::shapes::bbox::{corners, corners_2, translate, BBox};
+use crate::shapes::bbox::{corners, translate, BBox};
 use crate::shapes::circle;
 use crate::shapes::circle::Circle;
 use crate::shapes::collision::Collision;
 use crate::shapes::vec2d::{nearest, Vec2d, UNIT_X, UNIT_Y};
+use itertools::Itertools;
+use std::cmp::Ordering;
+use std::collections::VecDeque;
 
 pub fn intersects(bbox: &BBox, circle: &Circle) -> bool {
     intersects_on_axis(bbox, circle, &UNIT_X) &&
